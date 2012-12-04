@@ -6,118 +6,9 @@
 
 	<!-- stylesheets -->
 	<link rel="stylesheet" href="css/bootstrap.min.css"/>
-
+	<link rel="stylesheet/less" href="css/style.less" />
 
 	<style>
-		/* Copy pasted from http://css-tricks.com/snippets/css/using-font-face/ */
-		@font-face {
-			font-family: 'entypo';
-			src: url('fonts/Entypo/entypo.eot'); /* IE9 Compat Modes */
-			src: url('fonts/Entypo/entypo.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-			     url('fonts/Entypo/entypo.woff') format('woff'), /* Modern Browsers */
-			     url('fonts/Entypo/entypo.ttf')  format('truetype'), /* Safari, Android, iOS */
-			     url('fonts/Entypo/entypo.svg#entypo') format('svg'); /* Legacy iOS */
-		}
-
-		#main {
-			margin-top: 60px;
-		}
-
-		.footer {
-			margin-top: 100px;
-			padding: 20px;
-			border-top: #ccc;
-			background: #eee;
-		}
-
-		.footer > ul,li {
-			list-style: none;
-		}
-
-		.entypo {
-			font-family: "entypo";
-		}
-
-		.month-desc {
-			display: inline-block;
-		}
-
-		.month-desc * {
-			font-size: 1rem;
-		}
-
-		.month-desc > .dropdown-toggle {
-			color: #1693A5;
-			font-size: inherit;
-			text-decoration: underline;
-		}
-
-		.income {
-			color: #556270;
-		}
-
-		.managed {
-			color: #1693A5;
-		}
-
-		.unmanaged {
-			color: #FF0066;
-		}
-
-		.budget {
-			margin-top: 3rem;
-			padding: 0;
-		}
-
-		.item {
-			padding: 0;
-			margin-top: 3px;
-			border-bottom: 1px solid #f7f7f7;
-			border-radius: 5px;
-			display: inline-block;
-			padding: 0;
-		}
-
-		.purse {
-			padding: 0;
-			font-size: 1.5rem;
-			font-family: Helvetica;
-			font-weight: bold;
-			color: #7ED0D6;
-			line-height: 2.5rem;
-			margin-left: 0;
-		}
-
-		.value {
-			font-size: 1rem;
-			line-height: 2.5rem;
-			font-family: "Menlo";
-			color: #7F94B0;
-			padding-left: 10px;
-			padding-right: 5px;
-			text-align: right;
-			border-radius: 0px 5px 5px 0px;
-			text-shadow: 0px 1px rgba(255,255,255,.5);
-		}
-
-		.current {
-			font-weight: bold;
-		}
-
-		.btn {
-			border-radius: 2px;
-			color: rgba(0,0,0,.65);
-			text-shadow: 0px 1px white;
-		}
-
-		#income {
-			background: none;
-			outline: none;
-			border: 0;
-			box-shadow: 0 0 rgba(255,255,255,0);
-			color: #1693A5;
-			font-size: 1.45rem;
-		}
 	</style>
 </head>
 <body>
@@ -132,41 +23,53 @@
 		</div>
 	</nav>
 
-	<div id="main" class="container clear-top">
-		<div class="month-info">
-			<h3>
-				<div class="month-desc dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="#">December, 2012</a>
-					<ul class="dropdown-menu" role="menu" aria-labelledby="dlabel">
-						<li><a>November</a></li>
-						<li class="current"><a>December, 2012</a></li>
-						<li><a>January, 2013</a></li>
-						<li><a>February</a></li>
-						<li><a>March</a></li>
-					</ul>
+	<div id="main" class="container">
+		<div id="innerMain" class="span8 offset2">
+			<div class="outerstuff">
+				<div class="month-info">
+					<h3>
+						<div class="month-desc">
+							<div class="btn-group">
+								<a id="changeMonthPrevious" class="btn btn-small" href="#"> <i class="icon-chevron-left"></i> </a>
+								<a id="changeMonthNext" class="btn btn-small" href="#"> <i class="icon-chevron-right"></i></a>
+							</div>
+							<span id="monthDescription" class="month-desc" data-month="12/2012"></span> 
+
+						</div>
+					</h3>
 				</div>
-			</h3>
-		</div>
-		<div id="financialOverview">
-			<!-- Add Sparklines to the figures below -->
-			<!-- http://omnipotent.net/jquery.sparkline/#s-about -->
-			<div id="incomeArea">
-				<h3>Income &mdash; <span id="income" class="income figure"></span>&nbsp;<a id="changeIncome" class="btn btn-mini hidden-until-hover" href="#"> <i class="icon-edit"></i> change</a></h3>
+				<div id="financialOverview">
+					<!-- Add Sparklines to the figures below -->
+					<!-- http://omnipotent.net/jquery.sparkline/#s-about -->
+					<div id="incomeArea">
+						<h3>Income &mdash; <span id="income" class="income figure"></span>&nbsp;<a id="changeIncome" class="btn btn-mini hidden-until-hover" href="#"> <i class="icon-edit"></i> change</a></h3>
+					</div>
+					<div id="budgetStatement">
+					</div>
+				</div>
 			</div>
-			<div id="budgetStatement">
-			</div>
-		</div>
 
-		<div id="budget" class="budget">
-		</div>
+			<div id="budgetOuter">
+				<table id="budget" class="budget">
 
-		<form id="newBudgetItem" action="" class="control-group">
-			<div class="controls controls-row">
-				<input type="text" name="head" id="headInput" class="span5" placeholder="What are you budgeting?" tabindex="0" autofocus></input>
-				<input type="text" name="value" id="valueInput" class="span2 offset1" placeholder="How much?"></input>&nbsp;
-				<button id="addBudgetItem" type="submit" class="btn">Budget!</button>
+				</table>
+
+				<form id="newBudgetItem" action="" class="control-group">
+					<div class="controls controls-row">
+						<input type="text" name="head" id="headInput" class="span4" placeholder="What are you budgeting?" tabindex="0" autofocus></input>
+						<input type="text" name="value" id="valueInput" class="span2" placeholder="How much?"></input>&nbsp;
+						<button id="addBudgetItem" type="submit" class="btn">Budget!</button>
+					</div>
+				</form>
+
+				<table id="total" class="budget">
+					<tr class="item totalRow">
+						<td>Total Budgeted</td>
+						<td id="totalSum"></td>
+					</tr>
+				</table>
 			</div>
-		</form>
+		</div>
 	</div>
 
 
@@ -178,10 +81,14 @@
 		<div class="dropdown">
 			<button class="btn dropdown-toggle" data-toggle='dropdown'>Todos</button>
 			<ul class="dropdown-menu">
-				<li><a href="#">Better validation</a></li>
+				<li><a href="#">Add budgeted/unbudgeted month flag</a></li>
+				<li><a href="#">If unbudgeted month, first set income</a></li>
+				<li><a href="#">User level stuff to be added</a></li>
+				<li><a href="#">Like starting net-worth at month x</a></li>
+				<li><a href="#">Carry over purses and loans</a></li>
 				<li><a href="#">Add expression support in value</a></li>
-				<li><a href="#">Changing the month</a></li>
 				<li><a href="#">Formatting numbers automatically</a></li>
+				<li><a href="#">Local storage support</a></li>
 			</ul>
 		</div>
 	</div>
@@ -190,140 +97,12 @@
 	<script src="js/lib/bootstrap.min.js"></script>
 	<script src="js/lib/mustache.js"></script>
 	<script src="js/lib/underscore.js"></script>
+	<script src="js/lib/less.min.js"></script>
 
 	<!-- Scripts for budgeting -->
 	<script src="js/budget_planner.js"></script>
 
 	<script>
-		$(function() {
-			planner = new BudgetPlanner(9000);
-
-			$('#income').text(9000);
-			
-			function updateStatement() {
-				$('#budgetStatement').html(function(index, oldHtml) {
-					var income = planner.totalIncome(),
-						planned = planner.totalPlanned();
-
-
-					if (planned === 0) {
-						return Mustache.render('<h3>You&rsquo;ve not budgeted any of your income. Start below!</h3>', income);
-					} else if (planned < income) {
-						return Mustache.render('<h3>You&rsquo;ve budgeted <span id="managedFigure" class="managed figure">{{planned}}</span>, but you still have <span id="unmanagedFigure" class="unmanaged figure">{{unplanned}}</span> left to budget</h3>', {income: income, planned: planned, unplanned: income - planned});
-					} else if (planned > income){
-						return Mustache.render('<h3>Oops, looks like you&rsquo;re running short of money this month. You&rsquo;re <span class="unmanaged figure">{{over}}</span> over your income. Try adjusting your budget, or <a href="#">maybe take a loan from yourself</a>.', {over: planned - income});
-					} else {
-						return "<h3>Great! Your budget is fully balanced, now comes the hard part. <em>Stick to it!</em></h3>";
-					}
-				});
-			};
-
-			updateStatement();
-
-			$(document).on('scroll', function(e) {
-				if (document.body.scrollTop > 25) {
-					$("#navbar").css({
-						'opacity': 0.5
-					});
-
-					$('#brandLink').css({
-						position: 'fixed',
-						left: '10px'
-					});
-				} else {
-					$("#navbar").css({
-						opacity: 1
-					});
-
-					$('#brandLink').css({
-						position: '',
-						left: ''
-					});
-				}
-			});
-
-
-			$('#newBudgetItem').submit(function(e) {
-				var items = $(':input[type="text"]', $(e.target)),
-					formValue = {};
-
-				_.forEach(items, function(item) {
-					var $item = $(item);
-					formValue[item.name] = $item.val();
-				});
-
-				if (!validateFields(formValue.head, formValue.value)) {
-					return false;
-				}
-
-				planner.addPurse(formValue.head, formValue.value);
-
-				var newItemTemplate = Mustache.render('<div class="item">' +
-					'<div class="purse span6">{{head}}</div>' +
-					'<div class="value span2">{{value}}</div>' +
-				  '</div>', formValue);
-
-				$(newItemTemplate).appendTo("#budget");
-
-				// clear up everything and reset focus to original
-				$(':input[type="text"]', $(e.target)).val("").first().focus();
-
-				updateStatement();
-
-				return false;
-			});
-
-			$('#changeIncome').click(function() {
-				var template = '<form id="editableIncomeArea" class="form form-inline" action="">' +
-						'<h3>Change income to '+
-							'<input id="incomeInput" type="text" class="income figure" value="{{.}}"></input>&nbsp;' +
-							'<button id="finishIncomeEditing" class="btn" type="submit">Change!</button>'+
-						'</h3>'+
-					'</form>';
-
-				var $incomeArea = $('#incomeArea');
-				$incomeArea.css('display', 'none');
-
-				var elem = $(Mustache.render(template, planner.totalIncome())).insertAfter($incomeArea);
-
-				$('#incomeInput').focus();
-
-				$('#finishIncomeEditing').click(function() {
-					var newIncome = $('#incomeInput').val();
-					planner.setIncome(newIncome);
-					$('#income').text(planner.totalIncome());
-					$incomeArea.css('display', '');
-					elem.remove();
-					$('#headInput').focus();
-					updateStatement();
-				});
-			});
-
-			function validateFields(head, value) {
-				var res = [];
-
-				$('#newBudgetItem').removeClass('error');
-				$('.alert').alert('close');
-				$('.alert').remove();
-
-				if (!planner.validateNewPurse(head, value, res)) {
-					// failed
-					$('#newBudgetItem').addClass('error');
-
-					var $errors = $(Mustache.render('<div class="alert alert-block alert-error fade in">'+
-											'<a class="close" data-dismiss="alert" href="#">&times;</a>'+
-											'<h4>Errors</h4>'+
-											'<br/>' +
-												"{{#errors}}" + 
-													'<p>{{message}}</p>' +
-												"{{/errors}}" +
-											'</div>', {errors: res})).insertAfter('#newBudgetItem').alert();
-					return false;
-				} else {
-					return true;
-				}
-			}
-		});	// --- END OF STARTUP FN
 	</script>
 </body>
 </html>
