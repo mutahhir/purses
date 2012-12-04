@@ -3,13 +3,9 @@
 <meta charset="utf-8">
 <head>
 	<title>Purses Design</title>
-
 	<!-- stylesheets -->
 	<link rel="stylesheet" href="css/bootstrap.min.css"/>
 	<link rel="stylesheet/less" href="css/style.less" />
-
-	<style>
-	</style>
 </head>
 <body>
 
@@ -24,52 +20,44 @@
 	</nav>
 
 	<div id="main" class="container">
+		<div class="month-nav span8 offset2">
+			<div class="month-desc">
+					<div class="btn-group">
+						<a id="changeMonthPrevious" class="btn btn-small" href="#"> <i class="icon-chevron-left"></i> </a>
+						<a id="changeMonthNext" class="btn btn-small" href="#"> <i class="icon-chevron-right"></i></a>
+					</div>
+					<span id="monthDescription" data-month="12/2012"></span>
+			</div>
+		</div>
+				
+
 		<div id="innerMain" class="span8 offset2">
 			<div class="outerstuff">
-				<div class="month-info">
-					<h3>
-						<div class="month-desc">
-							<div class="btn-group">
-								<a id="changeMonthPrevious" class="btn btn-small" href="#"> <i class="icon-chevron-left"></i> </a>
-								<a id="changeMonthNext" class="btn btn-small" href="#"> <i class="icon-chevron-right"></i></a>
-							</div>
-							<span id="monthDescription" class="month-desc" data-month="12/2012"></span> 
-
-						</div>
-					</h3>
-				</div>
 				<div id="financialOverview">
-					<!-- Add Sparklines to the figures below -->
-					<!-- http://omnipotent.net/jquery.sparkline/#s-about -->
-					<div id="incomeArea">
-						<h3>Income &mdash; <span id="income" class="income figure"></span>&nbsp;<a id="changeIncome" class="btn btn-mini hidden-until-hover" href="#"> <i class="icon-edit"></i> change</a></h3>
-					</div>
 					<div id="budgetStatement">
 					</div>
 				</div>
 			</div>
-
 			<div id="budgetOuter">
 				<table id="budget" class="budget">
-
 				</table>
 
 				<form id="newBudgetItem" action="" class="control-group">
 					<div class="controls controls-row">
-						<input type="text" name="head" id="headInput" class="span4" placeholder="What are you budgeting?" tabindex="0" autofocus></input>
+						<input type="text" name="head" id="headInput" class="span4" placeholder="What are you budgeting?" tabindex="0" autofocus data-provide="typeahead"></input>
 						<input type="text" name="value" id="valueInput" class="span2" placeholder="How much?"></input>&nbsp;
 						<button id="addBudgetItem" type="submit" class="btn">Budget!</button>
 					</div>
 				</form>
-
-				<table id="total" class="budget">
-					<tr class="item totalRow">
-						<td>Total Budgeted</td>
-						<td id="totalSum"></td>
-					</tr>
-				</table>
 			</div>
 		</div>
+
+		<!-- <div id="rightBubble" class="span3 offset10">
+			<div id="incomeArea">
+				<h4>Income &mdash; <span id="income" class="income figure"></span>&nbsp;<a id="changeIncome" class="btn btn-mini hidden-until-hover" href="#"> <i class="icon-edit"></i> change</a></h4>
+			</div>
+		</div> -->
+
 	</div>
 
 
@@ -89,6 +77,8 @@
 				<li><a href="#">Add expression support in value</a></li>
 				<li><a href="#">Formatting numbers automatically</a></li>
 				<li><a href="#">Local storage support</a></li>
+				<li><a href="http://omnipotent.net/jquery.sparkline/#s-about">Add Sparklines to the figures below</a></li>
+				<li><a href="#">Add class for handling autocomplete values</a></li>
 			</ul>
 		</div>
 	</div>
