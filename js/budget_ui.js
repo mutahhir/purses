@@ -1,104 +1,178 @@
-$(function() {
-	planner = new BudgetPlanner(2000);
-	var itemArray = [];
 
-	$('#income').text(2000);
+var planner = new Purses();
 
-	function updateDateFromData(el) {
-		var dt = el.data('month'),
-			segs = dt.split('/'),
-			monthNum = segs[0],
-			yearNum = segs[1],
-			res = [],
-			months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+var updateIncomeAndBudgetStatement = function updateIncomeAndBudgetStatement() {
+	$('#budgetStatement').html(function(index, oldHtml) {
+		var income = planner.income(),
+			planned = planner.totalPlanned();
+			incomeTemplate = 'Planning for a {{income}} income. <a id="changeIncome" href="#">Change?</a>',
+			nothingPlannedTemplate = "You&rsquo;ve not budgeted any of your income. Start below!",
+			somePlannedTemplate = 'You&rsquo;ve budgeted <span id="managedFigure" class="managed figure">{{planned}}</span>, but you still have <span id="unmanagedFigure" class="unmanaged figure">{{unplanned}}</span> left to budget',
+			overPlannedTemplate = 'Oops, looks like you&rsquo;re running short of money this month. You&rsquo;re <span class="unmanaged figure">{{over}}</span> over your income. Try adjusting your budget, or <a href="#">maybe take a loan from yourself.</a>';
+			fullyPlannedTemplate = 'Great! Your budget is fully balanced, now comes the hard part. <em>Stick to it!</em>',
+			wrapElement = '<h4>',
+			endWrapElement = '</h4>',
+			statement = '';
 
-		el.text([months[monthNum-1],yearNum].join(', '));
-	}
-
-	function cachePurseItems() {
-		var els = $('[data-provide="typeahead"]');
-		if (itemArray.length === 0) {
-			itemArray = ["Rent", "School Fees", "Groceries", "Utility", "Electricity", "Gas", "Water", "Savings", "Insurance", 
-			"Transport", "Entertainment", "Child care", "Day care", "Maintenance", "Rainy Day Fund",
-			"Dining out", "School Lunch", "Oil", "Cable", "Telephone", "Internet", "Satellite", "Garbage Pickup",
-			"Cell Phone", "House Cleaner", "Mortgage", "Tax", "Property Tax", "Property Insurance",
-			"Laundry Supplies", "Cleaning Supplies", "Furniture", "Appliances", "Linens", "Toiletries",
-			"Stationery", "Parking", "Medical", "Health Insurance", "Books", "Gifts", "Car", "Vacation", "Investment", 
-			"Movies", "Clothing", "Medicine"];
+		if (planned === 0) {
+			statement = nothingPlannedTemplate;
+		} else if (planned < income) {
+			statement = somePlannedTemplate;
+		} else if (planned > income){
+			statement = overPlannedTemplate;
+		} else {
+			statement = fullyPlannedTemplate;
 		}
 
-		els.data('source', itemArray);
+		var resultTemplate = "<p>" + incomeTemplate + "</p>" +
+			wrapElement + statement + endWrapElement;
 
+		return Mustache.render(resultTemplate, {
+			income: income,
+			planned: planned,
+			unplanned: income - planned,
+			over: planned - income
+		});
+	});
+};
+
+var makePurseHtml = function makePurseHtml(purse) {
+	var template = '<tr class="item">' +
+		'<td class="purse span6">{{head}}</td>' +
+		'<td class="value span2">{{value}}</td>' +
+	'</tr>';
+
+	return Mustache.render(template, purse);
+};
+
+var updatePurses = function updatePurses() {
+	var purses = planner.purses(),
+		numPurses = purses.length,
+		pursesTableEl = $('#budget'),
+		items = [],
+		html = '';
+
+	pursesTableEl.empty();
+
+	for (var i = 0; i < numPurses; i++) {
+		items.push(makePurseHtml(purses[i]));
 	}
 
-	updateDateFromData($("#monthDescription"));
+	$(items.join('\n')).appendTo(pursesTableEl);
+};
+
+var addPurse = function addPurse(obj) {
+	$(makePurseHtml(obj)).appendTo($("#budget"));
+
+	// clear up everything and reset focus to original
+	$('#newBudgetItem input[type="text"]').val("").first().focus();
+
+	updateIncomeAndBudgetStatement();
+};
+
+var makeDisplayMonth = function makeDisplayMonth(dt) {
+	var segs = dt.split('/'),
+		monthNum = segs[0],
+		yearNum = segs[1],
+		res = [],
+		months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+	return [months[monthNum-1],yearNum].join(', ');
+};
+
+var onMonthChanged = function onMonthChanged(e) {
+	var currentMonth = (e && e.newMonth) || planner.currentMonth();
+	var monthDescriptionEl = $('#monthDescription');
+	monthDescriptionEl.data('month', currentMonth);
+	monthDescriptionEl.text(makeDisplayMonth(currentMonth));
+
+	updateIncomeAndBudgetStatement();
+	updatePurses();
+};
+
+var onIncomeChanged = function onIncomeChanged(evType, e) {
+	updateIncomeAndBudgetStatement();
+};
+
+var onPurseAdded = function onPurseAdded(evType, e) {
+	addPurse(e);
+};
+
+var onPurseDeleted = function onPurseDeleted(evType, e) {
+
+};
+
+function cachePurseItems() {
+	var els = $('[data-provide="typeahead"]');
+	if (itemArray.length === 0) {
+		itemArray = ["Rent", "School Fees", "Groceries", "Utility", "Electricity", "Gas", "Water", "Savings", "Insurance",
+		"Transport", "Entertainment", "Child care", "Day care", "Maintenance", "Rainy Day Fund",
+		"Dining out", "School Lunch", "Oil", "Cable", "Telephone", "Internet", "Satellite", "Garbage Pickup",
+		"Cell Phone", "House Cleaner", "Mortgage", "Tax", "Property Tax", "Property Insurance",
+		"Laundry Supplies", "Cleaning Supplies", "Furniture", "Appliances", "Linens", "Toiletries",
+		"Stationery", "Parking", "Medical", "Health Insurance", "Books", "Gifts", "Car", "Vacation", "Investment",
+		"Movies", "Clothing", "Medicine"];
+	}
+
+	els.data('source', itemArray);
+}
+
+var planner = new Purses(),
+	itemArray = [];
+
+var startup = function startup() {
+	onMonthChanged();
+	updateIncomeAndBudgetStatement();
 	cachePurseItems();
-	
-	function updateStatement() {
-		$('#budgetStatement').html(function(index, oldHtml) {
-			var income = planner.totalIncome(),
-				planned = planner.totalPlanned();
-				incomeTemplate = 'Planning for a {{income}} income. <a id="changeIncome" href="#">Change?</a>',
-				nothingPlannedTemplate = "You&rsquo;ve not budgeted any of your income. Start below!",
-				somePlannedTemplate = 'You&rsquo;ve budgeted <span id="managedFigure" class="managed figure">{{planned}}</span>, but you still have <span id="unmanagedFigure" class="unmanaged figure">{{unplanned}}</span> left to budget',
-				overPlannedTemplate = 'Oops, looks like you&rsquo;re running short of money this month. You&rsquo;re <span class="unmanaged figure">{{over}}</span> over your income. Try adjusting your budget, or <a href="#">maybe take a loan from yourself.</a>';
-				fullyPlannedTemplate = 'Great! Your budget is fully balanced, now comes the hard part. <em>Stick to it!</em>',
-				wrapElement = '<h4>',
-				endWrapElement = '</h4>',
-				statement = '';
+};
 
-			if (planned === 0) {
-				statement = nothingPlannedTemplate;
-			} else if (planned < income) {
-				statement = somePlannedTemplate;
-			} else if (planned > income){
-				statement = overPlannedTemplate;
-			} else {
-				statement = fullyPlannedTemplate;
-			}
 
-			var resultTemplate = "<p>" + incomeTemplate + "</p>" +
-				wrapElement + statement + endWrapElement;
 
-			return Mustache.render(resultTemplate, {
-				income: income,
-				planned: planned,
-				unplanned: income - planned,
-				over: planned - income
-			});
+/*
+	purses-month-changed
+	purses-income-changed
+	purses-add-purse
+	purses-delete-purse
+*/
+
+PubSub.subscribe('purses-month-changed', onMonthChanged);
+PubSub.subscribe('purses-income-changed', onIncomeChanged);
+PubSub.subscribe('purses-add-purse', onPurseAdded);
+PubSub.subscribe('purses-delete-purse', onPurseDeleted);
+
+
+var navbarUpdateOnScroll = function(e) {
+	if (document.body.scrollTop > 25) {
+		$("#navbar").css({
+			'opacity': 0.5
+		});
+
+		$('#brandLink').css({
+			position: 'fixed',
+			left: '10px'
+		});
+	} else {
+		$("#navbar").css({
+			opacity: 1
+		});
+
+		$('#brandLink').css({
+			position: '',
+			left: ''
 		});
 	}
+};
 
-	updateStatement();
-
-	$(document).on('scroll', function(e) {
-		if (document.body.scrollTop > 25) {
-			$("#navbar").css({
-				'opacity': 0.5
-			});
-
-			$('#brandLink').css({
-				position: 'fixed',
-				left: '10px'
-			});
-		} else {
-			$("#navbar").css({
-				opacity: 1
-			});
-
-			$('#brandLink').css({
-				position: '',
-				left: ''
-			});
-		}
-	});
+$(function() {
+	$(document).on('scroll', navbarUpdateOnScroll);
+	startup();
 
 	$('#changeMonthPrevious').click(function(e) {
 		var monthDescriptionEl = $('#monthDescription'),
 			monthTag = monthDescriptionEl.data('month'),
 			monthSegments = monthTag.split('/'),
-			monthNumber = parseInt(monthSegments[0]),
-			yearNumber = parseInt(monthSegments[1]);
+			monthNumber = parseInt(monthSegments[0],10),
+			yearNumber = parseInt(monthSegments[1],10);
 
 		monthNumber--;
 		if (monthNumber === 0) {
@@ -106,16 +180,15 @@ $(function() {
 			monthNumber = 12;
 		}
 
-		monthDescriptionEl.data('month', [monthNumber,yearNumber].join('/'));
-		updateDateFromData(monthDescriptionEl);
+		planner.setMonth([monthNumber,yearNumber].join('/'));
 	});
 
 	$('#changeMonthNext').click(function(e) {
 		var monthDescriptionEl = $('#monthDescription'),
 			monthTag = monthDescriptionEl.data('month'),
 			monthSegments = monthTag.split('/'),
-			monthNumber = parseInt(monthSegments[0]),
-			yearNumber = parseInt(monthSegments[1]);
+			monthNumber = parseInt(monthSegments[0],10),
+			yearNumber = parseInt(monthSegments[1],10);
 
 		monthNumber++;
 		if (monthNumber === 13) {
@@ -123,8 +196,7 @@ $(function() {
 			monthNumber = 1;
 		}
 
-		monthDescriptionEl.data('month', [monthNumber,yearNumber].join('/'));
-		updateDateFromData(monthDescriptionEl);
+		planner.setMonth([monthNumber, yearNumber].join('/'));
 	});
 
 	$('#newBudgetItem').submit(function(e) {
@@ -141,20 +213,6 @@ $(function() {
 		}
 
 		planner.addPurse(formValue.head, formValue.value);
-		var template = '<tr class="item">' +
-			'<td class="purse span6">{{head}}</td>' +
-			'<td class="value span2">{{value}}</td>' +
-		'</tr>';
-
-		var newItemHtml = Mustache.render(template, formValue);
-
-		$(newItemHtml).appendTo("#budget");
-
-		// clear up everything and reset focus to original
-		$(':input[type="text"]', $(e.target)).val("").first().focus();
-
-		updateStatement();
-
 		return false;
 	});
 
@@ -179,7 +237,7 @@ $(function() {
 
 		var $dest = $('#main');
 
-		var elem = $(Mustache.render(modal, planner.totalIncome())).appendTo($dest);
+		var elem = $(Mustache.render(modal, planner.income())).appendTo($dest);
 		elem.modal('show');
 
 		var save = false;
@@ -200,9 +258,9 @@ $(function() {
 			if (save) {
 				var newIncome = $('#incomeInput').val();
 				planner.setIncome(newIncome);
-				updateStatement();
+				updateIncomeAndBudgetStatement();
 				$('#headInput').focus();
-				updateStatement();
+				updateIncomeAndBudgetStatement();
 			}
 
 			elem.remove();

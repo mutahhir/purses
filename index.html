@@ -26,7 +26,7 @@
 						<a id="changeMonthPrevious" class="btn btn-small" href="#"> <i class="icon-chevron-left"></i> </a>
 						<a id="changeMonthNext" class="btn btn-small" href="#"> <i class="icon-chevron-right"></i></a>
 					</div>
-					<span id="monthDescription" data-month="12/2012"></span>
+					<span id="monthDescription"></span>
 			</div>
 		</div>
 				
@@ -34,9 +34,9 @@
 		<div id="innerMain" class="span8 offset2">
 			<div class="outerstuff">
 				<div id="financialOverview">
-					<div id="budgetStatement">
-					</div>
+					<div id="budgetStatement"></div>
 				</div>
+				<a href="#" class="btn btn-link">Delete this month's budget and start over?</a>
 			</div>
 			<div id="budgetOuter">
 				<table id="budget" class="budget">
@@ -83,17 +83,18 @@
 		</div>
 	</div>
 
+	<!-- -- 
+					JAVASCRIPT INCLUDES
+												-- -->
 	<script src="js/lib/jquery.min.js"></script>
 	<script src="js/lib/bootstrap.min.js"></script>
 	<script src="js/lib/mustache.js"></script>
 	<script src="js/lib/underscore.js"></script>
 	<script src="js/lib/less.min.js"></script>
+	<script src="js/lib/pubsub.js"></script>
 
 	<!-- Scripts for budgeting -->
-	<script src="js/budget_planner.js"></script>
+	<script src="js/purses.js"></script>
 	<script src="js/budget_ui.js"></script>
-
-	<script>
-	</script>
 </body>
 </html>
