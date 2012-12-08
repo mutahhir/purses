@@ -98,6 +98,11 @@ var onMonthChanged = function onMonthChanged(e) {
 	updatePurses();
 };
 
+var onRefresh = function onRefresh(e) {
+	updateIncomeAndBudgetStatement();
+	updatePurses();
+};
+
 var onIncomeChanged = function onIncomeChanged(evType, e) {
 	updateIncomeAndBudgetStatement();
 };
@@ -151,6 +156,7 @@ PubSub.subscribe('purses-month-changed', onMonthChanged);
 PubSub.subscribe('purses-income-changed', onIncomeChanged);
 PubSub.subscribe('purses-add-purse', onPurseAdded);
 PubSub.subscribe('purses-delete-purse', onPurseDeleted);
+PubSub.subscribe('purses-refresh-month', onRefresh);
 
 
 var navbarUpdateOnScroll = function(e) {
@@ -209,6 +215,11 @@ $(function() {
 			item = $(elem).parents('.item');
 
 		planner.removePurse(item.attr('id'));
+		return false;
+	});
+
+	$('#clearMonthPurses').click(function(e) {
+		planner.removeAllPursesForCurrentMonth();
 		return false;
 	});
 

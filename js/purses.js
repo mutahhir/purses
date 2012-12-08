@@ -104,20 +104,25 @@ var Purses = function() {
 		});
 	};
 
-	this.getCurrentMonthData = function() {
+	this.getMonthData = function getMonthData(monthString) {
+		var dt = this.data.months,
+			result;
+
+		for (var i = dt.length-1; i>=0; i--) {
+			var obj = dt[i];
+			if (obj.monthString === monthString) {
+				return obj;
+			}
+		}
+
+		return null;
+	};
+
+	this.getCurrentMonthData = function getCurrentMonthData() {
 		if (!this.currentMonthObject || this.currentMonth() !== this.currentMonthObject.monthString) {
 			this.setMonthIfNotSet();
-			var monthString = this.data.currentMonth;
 
-			var dt = this.data.months;
-
-			for (var i = dt.length-1; i>=0; i--) {
-				var obj = dt[i];
-				if (obj.monthString === monthString) {
-					this.currentMonthObject = obj;
-					break;
-				}
-			}
+			this.currentMonthObject = this.getMonthData(this.data.currentMonth);
 		}
 
 		return this.currentMonthObject;
@@ -126,7 +131,7 @@ var Purses = function() {
 	this.setIncome = function setIncome(i) {
 		var pi = parseFloat(i);
 
-		if (!!i && !isNaN(pi) && pi > 0) {	
+		if (!!i && !isNaN(pi) && pi > 0) {
 			var currentMonth = this.getCurrentMonthData();
 			var oldIncome = currentMonth.income;
 			currentMonth.income = pi;
@@ -148,7 +153,6 @@ var Purses = function() {
 		var res = true;
 
 		if (isNaN(parseFloat(value))) {
-			// 
 			if (hasResultObject)
 				resultObject.push({
 					which: 'value',
@@ -242,6 +246,22 @@ var Purses = function() {
 
 	this.editPurse = function editPurse(id, newHead, newValue) {
 
+	};
+
+	this.removeAllPursesForMonth = function removeAllPursesForMonth(month) {
+		var data = this.getMonthData(month);
+
+		if (!data) return;
+
+		data.purses = [];
+		data.totalPlanned = 0;
+		this.saveData();
+
+		this.emit('purses-refresh-month');
+	};
+
+	this.removeAllPursesForCurrentMonth = function removeAllPursesForCurrentMonth() {
+		this.removeAllPursesForMonth(this.currentMonth());
 	};
 
 	this.income = function income() {
