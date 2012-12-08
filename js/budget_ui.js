@@ -37,12 +37,20 @@ var updateIncomeAndBudgetStatement = function updateIncomeAndBudgetStatement() {
 };
 
 var makePurseHtml = function makePurseHtml(purse) {
-	var template = '<tr class="item">' +
-		'<td class="purse span6">{{head}}</td>' +
+	var template = '<tr class="item" id="{{id}}">' +
+		'<td class="drag-anchor"><a href="#"><i class="icon-move"></i></a></td>' +
+		'<td class="delete-item"><a href="#"><i class="icon-trash"></i></a></td>' +
+		'<td class="purse span6 offset1">{{head}}</td>' +
 		'<td class="value span2">{{value}}</td>' +
 	'</tr>';
 
 	return Mustache.render(template, purse);
+};
+
+var enableDraggability = function enableDraggability() {
+	$('.drag-anchor').live('mousedown', function(e){
+		this.parentElement.setAttribute('draggable', true);
+	});
 };
 
 var updatePurses = function updatePurses() {
@@ -99,7 +107,11 @@ var onPurseAdded = function onPurseAdded(evType, e) {
 };
 
 var onPurseDeleted = function onPurseDeleted(evType, e) {
-
+	var el = $('#'+e.id);
+	el.fadeOut(500, function() {
+		el.remove();
+		updateIncomeAndBudgetStatement();
+	});
 };
 
 function cachePurseItems() {
@@ -163,9 +175,73 @@ var navbarUpdateOnScroll = function(e) {
 	}
 };
 
+var validateFields = function validateFields(head, value) {
+	var res = [];
+
+	$('#newBudgetItem').removeClass('error');
+	$('.alert').alert('close');
+	$('.alert').remove();
+
+	if (!planner.validateNewPurse(head, value, res)) {
+		// failed
+		$('#newBudgetItem').addClass('error');
+
+		var $errors = $(Mustache.render('<div class="alert alert-block alert-error fade in">'+
+								'<a class="close" data-dismiss="alert" href="#">&times;</a>'+
+								'<h4>Errors</h4>'+
+								'<br/>' +
+									"{{#errors}}" + 
+										'<p>{{message}}</p>' +
+									"{{/errors}}" +
+								'</div>', {errors: res})).insertAfter('#newBudgetItem').alert();
+		return false;
+	} else {
+		return true;
+	}
+};
+
 $(function() {
 	$(document).on('scroll', navbarUpdateOnScroll);
 	startup();
+
+	$('.delete-item a').live('click', function(e) {
+		var elem = e.target,
+			item = $(elem).parents('.item');
+
+		planner.removePurse(item.attr('id'));
+		return false;
+	});
+
+	$('.item .purse').live('dblclick', function(e) {
+		var elem = $(e.target),
+			rect = elem.get(0).getBoundingClientRect();
+			editEl = $('<input type="text" value="'+elem.text()+'"></input>').css({
+				position: 'absolute',
+				left: rect.left+'px',
+				top: rect.top + 'px',
+				width: rect.width + 'px',
+				'margin-top': '5px',
+				padding: '6px'
+			}).appendTo($('body'))
+			.focus()
+			.keydown(function(e){
+				if (e.which === 13) {
+					// save
+					$(this).remove();
+					$('#newBudgetItem input[type="text"]').val("").first().focus();
+					e.preventDefault();
+				} else if (e.which === 27) {
+					// don't save
+					$(this).remove();
+					$('#newBudgetItem input[type="text"]').val("").first().focus();
+					e.preventDefault();
+				}
+
+			});
+
+
+
+	});
 
 	$('#changeMonthPrevious').click(function(e) {
 		var monthDescriptionEl = $('#monthDescription'),
@@ -266,29 +342,4 @@ $(function() {
 			elem.remove();
 		});
 	});
-
-	function validateFields(head, value) {
-		var res = [];
-
-		$('#newBudgetItem').removeClass('error');
-		$('.alert').alert('close');
-		$('.alert').remove();
-
-		if (!planner.validateNewPurse(head, value, res)) {
-			// failed
-			$('#newBudgetItem').addClass('error');
-
-			var $errors = $(Mustache.render('<div class="alert alert-block alert-error fade in">'+
-									'<a class="close" data-dismiss="alert" href="#">&times;</a>'+
-									'<h4>Errors</h4>'+
-									'<br/>' +
-										"{{#errors}}" + 
-											'<p>{{message}}</p>' +
-										"{{/errors}}" +
-									'</div>', {errors: res})).insertAfter('#newBudgetItem').alert();
-			return false;
-		} else {
-			return true;
-		}
-	}
 });	// --- END OF STARTUP FN

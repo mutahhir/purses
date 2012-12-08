@@ -189,11 +189,21 @@ var Purses = function() {
 		return res;
 	};
 
+	this._generateUniqueId = function _generateUniqueId() {
+		var time = new Date().getUTCMilliseconds();
+		
+		while(time === this._lastId) time = (new Date()).getUTCMilliseconds();
+
+		this._lastId = time;
+		return time;
+	};
+
 	this.addPurse = function addPurse(head, value) {
 		if (this.validateNewPurse(head, value)) {
 			var monthObject = this.getCurrentMonthData();
 
 			var purseObject = {
+				id: this._generateUniqueId(),
 				head: head,
 				value: parseFloat(value)
 			};
@@ -203,30 +213,34 @@ var Purses = function() {
 
 			this.emit('purses-add-purse', purseObject);
 			this.saveData();
-		}	
+		}
 	};
 
-	this.removePurse = function removePurse(head) {
+	this.removePurse = function removePurse(id) {
 		var monthObject = this.getCurrentMonthData(),
 			purses = monthObject.purses,
 			numPurses = purses.length,
 			deletedPurse = null;
 
+		if (typeof(id) === 'string') id = parseInt(id,10);
+
 		for (var i = numPurses-1; i>= 0; i--) {
-			if (purse.head === head) {
+			var purse = purses[i];
+			if (purse.id === id) {
 				deletedPurse = purses.splice(i, 1);
 				break;
 			}
 		}
 
-		if (deletedPurse) {
+		if (deletedPurse && deletedPurse.length === 1) {
+			deletedPurse = deletedPurse[0];
 			monthObject.totalPlanned = monthObject.totalPlanned - deletedPurse.value;
 			this.emit('purses-delete-purse', deletedPurse);
 			this.saveData();
 		}
 	};
 
-	this.editPurse = function editPurse(purse, newHead, newValue) {
+	this.editPurse = function editPurse(id, newHead, newValue) {
 
 	};
 

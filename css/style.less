@@ -145,18 +145,19 @@ body {
 	margin-top: 2rem;
 }
 
-#rightBubble {
-	position: fixed;
-	margin-top: -25px;
-	padding: 10px;
-	border-radius: 3px;
-	background: @oneLevelBackground;
+.item:hover {
+	.drag-anchor,.delete-item {
+		visibility: visible;
+	}
+
+	.drag-anchor {
+		opacity: 0.2;
+	}
 }
 
-.invisibleEditor {
-	outline: none !important;
-	border: none !important;
-	background: transparent !important;
+.drag-anchor,.delete-item {
+	visibility: hidden;
+	padding-right: 5px;
+	opacity: 0.75;
 }
-
 
