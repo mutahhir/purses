@@ -244,8 +244,36 @@ var Purses = function() {
 		}
 	};
 
-	this.editPurse = function editPurse(id, newHead, newValue) {
+	this.findPurseById = function findPurseById(id) {
+		var currentMonthObject = this.getCurrentMonthData(),
+			purses = currentMonthObject.purses;
 
+		for (var i = purses.length-1; i>=0; i--) {
+			var purse = purses[i];
+			if (purse.id === id) return purse;
+		}
+
+		return null;
+	};
+
+	this.editPurse = function editPurse(id, type, replacement) {
+		var currentMonthObject = this.getCurrentMonthData(),
+			purseToEdit = this.findPurseById(id);
+
+		if (!purseToEdit) throw "Purse to be edited doesn't exist";
+		if (!type) throw "Select field type to edit";
+		if (!replacement || (type === 'value' && isNaN(parseFloat(replacement)))) throw "Replacement has to be valid value";
+
+		if (type === 'head') {
+			purseToEdit.head = replacement;
+		} else {
+			currentMonthObject.totalPlanned -= purseToEdit.value;
+			purseToEdit.value = parseFloat(replacement);
+			currentMonthObject.totalPlanned += purseToEdit.value;
+		}
+
+		this.saveData();
+		this.emit('purses-update-purse', purseToEdit);
 	};
 
 	this.removeAllPursesForMonth = function removeAllPursesForMonth(month) {

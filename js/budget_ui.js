@@ -119,6 +119,17 @@ var onPurseDeleted = function onPurseDeleted(evType, e) {
 	});
 };
 
+var onPurseUpdated = function onPurseUpdated(evType, e) {
+	var purseToUpdate = $('#'+e.id);
+
+	if (!purseToUpdate) throw "Invalid id for purse updation";
+
+	$('.purse', purseToUpdate).text(e.head);
+	$('.value', purseToUpdate).text(e.value);
+
+	updateIncomeAndBudgetStatement();
+};
+
 function cachePurseItems() {
 	var els = $('[data-provide="typeahead"]');
 	if (itemArray.length === 0) {
@@ -150,6 +161,8 @@ var startup = function startup() {
 	purses-income-changed
 	purses-add-purse
 	purses-delete-purse
+	purses-refresh-month
+	purses-update-purse
 */
 
 PubSub.subscribe('purses-month-changed', onMonthChanged);
@@ -157,6 +170,7 @@ PubSub.subscribe('purses-income-changed', onIncomeChanged);
 PubSub.subscribe('purses-add-purse', onPurseAdded);
 PubSub.subscribe('purses-delete-purse', onPurseDeleted);
 PubSub.subscribe('purses-refresh-month', onRefresh);
+PubSub.subscribe('purses-update-purse', onPurseUpdated);
 
 
 var navbarUpdateOnScroll = function(e) {
@@ -179,6 +193,14 @@ var navbarUpdateOnScroll = function(e) {
 			left: ''
 		});
 	}
+};
+
+var saveEdit = function saveEdit(obj) {
+
+};
+
+var moveToNextEdit = function moveToNextEdit(id, isHeadEditing) {
+
 };
 
 var validateFields = function validateFields(head, value) {
@@ -223,34 +245,89 @@ $(function() {
 		return false;
 	});
 
-	$('.item .purse').live('dblclick', function(e) {
-		var elem = $(e.target),
-			rect = elem.get(0).getBoundingClientRect();
-			editEl = $('<input type="text" value="'+elem.text()+'"></input>').css({
-				position: 'absolute',
-				left: rect.left+'px',
-				top: rect.top + 'px',
-				width: rect.width + 'px',
-				'margin-top': '5px',
-				padding: '6px'
-			}).appendTo($('body'))
-			.focus()
-			.keydown(function(e){
-				if (e.which === 13) {
-					// save
-					$(this).remove();
-					$('#newBudgetItem input[type="text"]').val("").first().focus();
-					e.preventDefault();
-				} else if (e.which === 27) {
-					// don't save
-					$(this).remove();
-					$('#newBudgetItem input[type="text"]').val("").first().focus();
-					e.preventDefault();
-				}
+	$('.item .purse,.value').live('dblclick', function(e) {
+		$('.editor_div').remove();
+		$('.item').removeClass('edit-highlight');
 
+		var elem = $(e.target),
+			self = this,
+			scrollTop = $(document).scrollTop(),
+			type = elem.hasClass('purse')? 'head' : 'value',
+			rect = elem.get(0).getBoundingClientRect(),
+			itemEl = elem.parents('.item'),
+			id = itemEl.attr('id'),
+			templateHead = '<div id="_{{id}}" class="editor_div"><input type="text" value="{{val}}" class="editor"></input><a href="#" class="edit-ok"><i class="icon-ok"></i></a><a href="#" class="edit-cancel"><i class="icon-remove"></i></a></div>',
+			templateValue = '<div id="_{{id}}" class="editor_div"><a href="#" class="edit-ok"><i class="icon-ok"></i></a><a href="#" class="edit-cancel"><i class="icon-remove"></i></a><input type="text" value="{{val}}" class="editor mini"></input></div>',
+			editEl;
+
+			if (type === 'head') {
+				editEl = $(Mustache.render(templateHead, {id: id, val: elem.text()}))
+				.css({
+					position: 'absolute',
+					left: (rect.left-6)+'px',
+					top: rect.top + scrollTop + 'px',
+					width: rect.width + 'px',
+					height: rect.height + 'px',
+					display: 'inline-rect',
+					padding: '6px'
+				}).appendTo($('body'));
+			} else {
+				editEl = $(Mustache.render(templateValue, {id: id, val: elem.text()}))
+				.css({
+					position: 'absolute',
+					left: (rect.left-36)+'px',
+					top: rect.top + scrollTop + 'px',
+					display: 'inline-rect',
+					padding: '6px'
+				}).appendTo($('body'));
+			}
+			
+
+		itemEl.addClass('edit-highlight');
+
+		var cleanup = function cleanup() {
+			editEl.remove();
+			itemEl.removeClass('edit-highlight');
+			$('#newBudgetItem input[type="text"]').val("").first().focus();
+		};
+
+		var okLink = $('a.edit-ok', editEl).click(function(e) {
+				// save
+				var replacement = editEl.find(':input').val();
+				planner.editPurse(parseInt(id,10), type, replacement);
+				cleanup();
+				e.preventDefault();
 			});
 
+		var cancelLink = $('a.edit-cancel', editEl).click(function(e) {
+				cleanup();
+				e.preventDefault();
+			});
 
+		$('.edit-ok,.edit-cancel').css({
+			'position': 'relative',
+			'top': '-3px',
+			'margin-left': '5px'
+		});
+
+		$(':input', editEl)
+		.focus()
+		.keydown(function(e){
+			if (e.which === 13) {
+				// save
+				okLink.trigger('click');
+				return false;
+			} else if (e.which === 27) {
+				cancelLink.trigger('click');
+				return false;
+			} else if (e.which === 9) {
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			}
+		});
+
+		return false;
 
 	});
 
